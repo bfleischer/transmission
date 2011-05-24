@@ -476,6 +476,18 @@ int trashDataFile(const char * filename)
     return tr_torrentGetPeerLimit(fHandle);
 }
 
+- (void) setUploadSlots: (uint16_t) count
+{
+    NSAssert(count > 0, @"upload slot count must be greater than 0");
+    
+    tr_torrentSetUploadSlots(fHandle, count);
+}
+
+- (uint16_t) uploadSlots
+{
+    return tr_torrentGetUploadSlots(fHandle);
+}
+
 - (void) setWaitToStart: (BOOL) wait
 {
     fWaitToStart = wait;

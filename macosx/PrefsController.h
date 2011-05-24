@@ -46,7 +46,7 @@
                         * fSpeedLimitUploadField, * fSpeedLimitDownloadField;
     IBOutlet NSPopUpButton * fAutoSpeedDayTypePopUp;
     
-    IBOutlet NSTextField * fPeersGlobalField, * fPeersTorrentField,
+    IBOutlet NSTextField * fPeersGlobalField, * fPeersTorrentField, * fUploadSlotsTorrentField,
                         * fBlocklistURLField, * fBlocklistMessageField, * fBlocklistDateField;
     IBOutlet NSButton * fBlocklistButton;
     
@@ -88,6 +88,8 @@
 - (void) setPEX: (id) sender;
 - (void) setDHT: (id) sender;
 - (void) setLPD: (id) sender;
+
+- (void) setUploadSlotsTorrent: (id) sender;
 
 - (void) setEncryptionMode: (id) sender;
 

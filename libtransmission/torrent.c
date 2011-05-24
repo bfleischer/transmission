@@ -2221,6 +2221,27 @@ tr_torrentGetPeerLimit( const tr_torrent * tor )
 ***/
 
 void
+tr_torrentSetUploadSlots( tr_torrent * tor,
+                          uint16_t     uploadSlots )
+{
+    assert( tr_isTorrent( tor ) );
+
+    tor->uploadSlots = uploadSlots;
+}
+
+uint16_t
+tr_torrentGetUploadSlots( const tr_torrent * tor )
+{
+    assert( tr_isTorrent( tor ) );
+
+    return tor->uploadSlots;
+}
+
+/***
+****
+***/
+
+void
 tr_torrentGetBlockLocation( const tr_torrent * tor,
                             tr_block_index_t   block,
                             tr_piece_index_t * piece,

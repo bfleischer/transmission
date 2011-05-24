@@ -244,6 +244,8 @@ struct tr_torrent
 
     uint16_t                   maxConnectedPeers;
 
+    uint16_t                   uploadSlots;
+
     tr_verify_state            verifyState;
 
     time_t                     lastStatTime;

@@ -178,6 +178,8 @@
 	<true/>
 	<key>UploadLimit</key>
 	<integer>50</integer>
+	<key>UploadSlotsTorrent</key>
+	<integer>10</integer>
 	<key>UseIncompleteDownloadFolder</key>
 	<false/>
 	<key>UTPGlobal</key>

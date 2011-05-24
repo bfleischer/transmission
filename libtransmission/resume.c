@@ -34,6 +34,7 @@
 #define KEY_DOWNLOADED          "downloaded"
 #define KEY_INCOMPLETE_DIR      "incomplete-dir"
 #define KEY_MAX_PEERS           "max-peers"
+#define KEY_UPLOAD_SLOTS        "upload-slots"
 #define KEY_PAUSED              "paused"
 #define KEY_PEERS               "peers2"
 #define KEY_PEERS6              "peers2-6"
@@ -645,6 +646,7 @@ tr_torrentSaveResume( tr_torrent * tor )
     tr_bencDictAddInt( &top, KEY_DOWNLOADED, tor->downloadedPrev + tor->downloadedCur );
     tr_bencDictAddInt( &top, KEY_UPLOADED, tor->uploadedPrev + tor->uploadedCur );
     tr_bencDictAddInt( &top, KEY_MAX_PEERS, tor->maxConnectedPeers );
+    tr_bencDictAddInt( &top, KEY_UPLOAD_SLOTS, tor->uploadSlots );
     tr_bencDictAddInt( &top, KEY_BANDWIDTH_PRIORITY, tr_torrentGetPriority( tor ) );
     tr_bencDictAddBool( &top, KEY_PAUSED, !tor->isRunning );
     savePeers( &top, tor );
@@ -735,6 +737,13 @@ loadFromFile( tr_torrent * tor, uint64_t fieldsToLoad )
     {
         tor->maxConnectedPeers = i;
         fieldsLoaded |= TR_FR_MAX_PEERS;
+    }
+
+    if( ( fieldsToLoad & TR_FR_UPLOAD_SLOTS )
+      && tr_bencDictFindInt( &top, KEY_UPLOAD_SLOTS, &i ) )
+    {
+        tor->uploadSlots = i;
+        fieldsLoaded |= TR_FR_UPLOAD_SLOTS;
     }
 
     if( ( fieldsToLoad & TR_FR_RUN )
@@ -836,6 +845,10 @@ setFromCtor( tr_torrent * tor, uint64_t fields, const tr_ctor * ctor, int mode )
     if( fields & TR_FR_MAX_PEERS )
         if( !tr_ctorGetPeerLimit( ctor, mode, &tor->maxConnectedPeers ) )
             ret |= TR_FR_MAX_PEERS;
+
+    if( fields & TR_FR_UPLOAD_SLOTS )
+        if( !tr_ctorGetUploadSlots( ctor, mode, &tor->uploadSlots ) )
+            ret |= TR_FR_UPLOAD_SLOTS;
 
     if( fields & TR_FR_DOWNLOAD_DIR )
     {

@@ -263,6 +263,29 @@
         [fPeersConnectField setIntValue: maxPeers];
     else
         [fPeersConnectField setStringValue: @""];
+    
+    //get upload slots
+    enumerator = [fTorrents objectEnumerator];
+    torrent = [enumerator nextObject]; //first torrent
+    
+    NSInteger uploadSlots = [torrent uploadSlots];
+    
+    while ((torrent = [enumerator nextObject]))
+    {
+        if (uploadSlots != [torrent uploadSlots])
+        {
+            uploadSlots = INVALID;
+            break;
+        }
+    }
+    
+    //set upload slots
+    [fUploadSlotsField setEnabled: YES];
+    [fUploadSlotsLabel setEnabled: YES];
+    if (uploadSlots != INVALID)
+        [fUploadSlotsField setIntValue: uploadSlots];
+    else
+        [fUploadSlotsField setStringValue: @""];
 }
 
 - (void) setUseSpeedLimit: (id) sender
@@ -425,6 +448,15 @@
         [torrent setMaxPeerConnect: limit];
 }
 
+- (void) setUploadSlots: (id) sender
+{
+    NSInteger slots = [sender intValue];
+    
+    for (Torrent * torrent in fTorrents)
+        [torrent setUploadSlots: slots];
+}
+
+
 - (BOOL) control: (NSControl *) control textShouldBeginEditing: (NSText *) fieldEditor
 {
     [fInitialString release];
@@ -487,6 +519,10 @@
         [fPeersConnectField setEnabled: NO];
         [fPeersConnectField setStringValue: @""];
         [fPeersConnectLabel setEnabled: NO];
+        
+		[fUploadSlotsField setEnabled: NO];
+        [fUploadSlotsField setStringValue: @""];
+        [fUploadSlotsLabel setEnabled: NO];
     }
     else
         [self updateOptions];

@@ -355,7 +355,7 @@ tr_sessionGetDefaultSettings( tr_benc * d )
     tr_bencDictAddInt ( d, TR_PREFS_KEY_USPEED_KBps,              100 );
     tr_bencDictAddBool( d, TR_PREFS_KEY_USPEED_ENABLED,           false );
     tr_bencDictAddInt ( d, TR_PREFS_KEY_UMASK,                    022 );
-    tr_bencDictAddInt ( d, TR_PREFS_KEY_UPLOAD_SLOTS_PER_TORRENT, 14 );
+    tr_bencDictAddInt ( d, TR_PREFS_KEY_UPLOAD_SLOTS_PER_TORRENT, 10 );
     tr_bencDictAddStr ( d, TR_PREFS_KEY_BIND_ADDRESS_IPV4,        TR_DEFAULT_BIND_ADDRESS_IPV4 );
     tr_bencDictAddStr ( d, TR_PREFS_KEY_BIND_ADDRESS_IPV6,        TR_DEFAULT_BIND_ADDRESS_IPV6 );
     tr_bencDictAddBool( d, TR_PREFS_KEY_START,                    true );
@@ -1613,6 +1613,26 @@ tr_sessionGetPeerLimitPerTorrent( const tr_session * session )
     assert( tr_isSession( session ) );
 
     return session->peerLimitPerTorrent;
+}
+
+/***
+****
+***/
+
+void
+tr_sessionSetUploadSlotsPerTorrent( tr_session  * session, uint16_t n )
+{
+    assert( tr_isSession( session ) );
+
+    session->uploadSlotsPerTorrent = n;
+}
+
+uint16_t
+tr_sessionGetUploadSlotsPerTorrent( const tr_session * session )
+{
+    assert( tr_isSession( session ) );
+
+    return session->uploadSlotsPerTorrent;
 }
 
 /***

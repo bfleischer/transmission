@@ -32,13 +32,14 @@ enum
     TR_FR_DOWNLOAD_DIR        = ( 1 << 10 ),
     TR_FR_INCOMPLETE_DIR      = ( 1 << 11 ),
     TR_FR_MAX_PEERS           = ( 1 << 12 ),
-    TR_FR_ADDED_DATE          = ( 1 << 13 ),
-    TR_FR_DONE_DATE           = ( 1 << 14 ),
-    TR_FR_ACTIVITY_DATE       = ( 1 << 15 ),
-    TR_FR_RATIOLIMIT          = ( 1 << 16 ),
-    TR_FR_IDLELIMIT           = ( 1 << 17 ),
-    TR_FR_TIME_SEEDING        = ( 1 << 18 ),
-    TR_FR_TIME_DOWNLOADING    = ( 1 << 19 )
+    TR_FR_UPLOAD_SLOTS        = ( 1 << 13 ),
+    TR_FR_ADDED_DATE          = ( 1 << 14 ),
+    TR_FR_DONE_DATE           = ( 1 << 15 ),
+    TR_FR_ACTIVITY_DATE       = ( 1 << 16 ),
+    TR_FR_RATIOLIMIT          = ( 1 << 17 ),
+    TR_FR_IDLELIMIT           = ( 1 << 18 ),
+    TR_FR_TIME_SEEDING        = ( 1 << 19 ),
+    TR_FR_TIME_DOWNLOADING    = ( 1 << 20 )
 };
 
 /**
