@@ -217,6 +217,9 @@
     [fPeersGlobalField setIntValue: [fDefaults integerForKey: @"PeersTotal"]];
     [fPeersTorrentField setIntValue: [fDefaults integerForKey: @"PeersTorrent"]];
     
+	//set upload slots
+    [fUploadSlotsTorrentField setIntValue: [fDefaults integerForKey: @"UploadSlotsTorrent"]];
+    
     //set queue values
     [fQueueDownloadField setIntValue: [fDefaults integerForKey: @"QueueDownloadNumber"]];
     [fQueueSeedField setIntValue: [fDefaults integerForKey: @"QueueSeedNumber"]];
@@ -505,6 +508,13 @@
 - (void) setLPD: (id) sender
 {
     tr_sessionSetLPDEnabled(fHandle, [fDefaults boolForKey: @"LocalPeerDiscoveryGlobal"]);
+}
+
+- (IBAction) setUploadSlotsTorrent: (id) sender
+{
+    const int count = [sender intValue];
+    [fDefaults setInteger: count forKey: @"UploadSlotsTorrent"];
+    tr_sessionSetUploadSlotsPerTorrent(fHandle, count);
 }
 
 - (void) setEncryptionMode: (id) sender

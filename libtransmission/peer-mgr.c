@@ -3062,9 +3062,9 @@ rechokeUploads( Torrent * t, const uint64_t now )
     const int peerCount = tr_ptrArraySize( &t->peers );
     tr_peer ** peers = (tr_peer**) tr_ptrArrayBase( &t->peers );
     struct ChokeData * choke = tr_new0( struct ChokeData, peerCount );
-    const tr_session * session = t->manager->session;
-    const int chokeAll = !tr_torrentIsPieceTransferAllowed( t->tor, TR_CLIENT_TO_PEER );
-    const bool isMaxedOut = isBandwidthMaxedOut( &t->tor->bandwidth, now, TR_UP );
+    const tr_torrent * tor = t->tor;
+    const int chokeAll = !tr_torrentIsPieceTransferAllowed( tor, TR_CLIENT_TO_PEER );
+    const bool isMaxedOut = isBandwidthMaxedOut( &tor->bandwidth, now, TR_UP );
 
     assert( torrentIsLocked( t ) );
 
@@ -3119,7 +3119,7 @@ rechokeUploads( Torrent * t, const uint64_t now )
      * If our bandwidth is maxed out, don't unchoke any more peers.
      */
     unchokedInterested = 0;
-    for( i=0; i<size && unchokedInterested<session->uploadSlotsPerTorrent; ++i ) {
+    for( i=0; i<size && unchokedInterested<tor->uploadSlots-1; ++i ) {
         choke[i].isChoked = isMaxedOut ? choke[i].wasChoked : false;
         if( choke[i].isInterested )
             ++unchokedInterested;

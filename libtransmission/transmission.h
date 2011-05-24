@@ -734,6 +734,9 @@ uint16_t   tr_sessionGetPeerLimit( const tr_session * );
 void       tr_sessionSetPeerLimitPerTorrent( tr_session *, uint16_t maxPeers );
 uint16_t   tr_sessionGetPeerLimitPerTorrent( const tr_session * );
 
+void       tr_sessionSetUploadSlotsPerTorrent( tr_session *, uint16_t uploadSlots );
+uint16_t   tr_sessionGetUploadSlotsPerTorrent( const tr_session * );
+
 void       tr_sessionSetPaused        ( tr_session *, bool isPaused );
 bool       tr_sessionGetPaused        ( const tr_session * );
 
@@ -1024,6 +1027,9 @@ int tr_ctorSetMetainfoFromHash( tr_ctor * ctor, const char * hashString );
 /** @brief Set how many peers this torrent can connect to. (Default: 50) */
 void tr_ctorSetPeerLimit( tr_ctor * ctor, tr_ctorMode mode, uint16_t limit );
 
+/** @brief Set the number of upload slots for this torrent. (Default: 10) */
+void tr_ctorSetUploadSlots( tr_ctor * ctor, tr_ctorMode mode, uint16_t uploadSlots );
+
 /** @brief Set the download folder for the torrent being added with this ctor.
     @see tr_ctorSetDownloadDir()
     @see tr_sessionInit() */
@@ -1065,6 +1071,11 @@ int         tr_ctorGetPeerLimit( const tr_ctor * ctor,
                                  tr_ctorMode     mode,
                                  uint16_t *      setmeCount );
 
+/** @brief Get this peer constructor's number of upload slots */
+int         tr_ctorGetUploadSlots( const tr_ctor * ctor,
+                                   tr_ctorMode     mode,
+                                   uint16_t *      setmeCount );
+	
 /** @brief Get the "isPaused" flag from this peer constructor */
 int         tr_ctorGetPaused( const tr_ctor * ctor,
                               tr_ctorMode     mode,

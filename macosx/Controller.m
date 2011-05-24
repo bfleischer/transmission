@@ -281,6 +281,8 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
         tr_bencDictAddInt(&settings, TR_PREFS_KEY_PEER_LIMIT_GLOBAL, [fDefaults integerForKey: @"PeersTotal"]);
         tr_bencDictAddInt(&settings, TR_PREFS_KEY_PEER_LIMIT_TORRENT, [fDefaults integerForKey: @"PeersTorrent"]);
         
+        tr_bencDictAddInt(&settings, TR_PREFS_KEY_UPLOAD_SLOTS_PER_TORRENT, [fDefaults integerForKey: @"UploadSlotsTorrent"]);
+        
         const BOOL randomPort = [fDefaults boolForKey: @"RandomPort"];
         tr_bencDictAddBool(&settings, TR_PREFS_KEY_PEER_PORT_RANDOM_ON_START, randomPort);
         if (!randomPort)

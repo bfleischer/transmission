@@ -36,7 +36,8 @@
     IBOutlet NSTextField * fUploadLimitField, * fDownloadLimitField, * fRatioLimitField, * fIdleLimitField,
                         * fUploadLimitLabel, * fDownloadLimitLabel, * fIdleLimitLabel,
                         * fRatioLimitGlobalLabel, * fIdleLimitGlobalLabel,
-                        * fPeersConnectLabel, * fPeersConnectField;
+                        * fPeersConnectLabel, * fPeersConnectField,
+                        * fUploadSlotsLabel, * fUploadSlotsField;
     
     NSString * fInitialString;
 }
@@ -58,5 +59,7 @@
 - (void) setPriority: (id) sender;
 
 - (void) setPeersConnectLimit: (id) sender;
+
+- (IBAction) setUploadSlots:(id)sender;
 
 @end

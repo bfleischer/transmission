@@ -22,10 +22,12 @@ struct optional_args
 {
     bool            isSet_paused;
     bool            isSet_connected;
+    bool            isSet_uploadSlots;
     bool            isSet_downloadDir;
 
     bool            isPaused;
     uint16_t        peerLimit;
+    uint16_t        uploadSlots;
     char          * downloadDir;
 };
 
@@ -309,6 +311,17 @@ tr_ctorSetPeerLimit( tr_ctor *   ctor,
 }
 
 void
+tr_ctorSetUploadSlots( tr_ctor *   ctor,
+                       tr_ctorMode mode,
+                       uint16_t    uploadSlots )
+{
+    struct optional_args * args = &ctor->optionalArgs[mode];
+
+    args->isSet_uploadSlots = 1;
+    args->uploadSlots = uploadSlots;
+}
+
+void
 tr_ctorSetDownloadDir( tr_ctor *    ctor,
                        tr_ctorMode  mode,
                        const char * directory )
@@ -345,6 +358,22 @@ tr_ctorGetPeerLimit( const tr_ctor * ctor,
         err = 1;
     else if( setmeCount )
         *setmeCount = args->peerLimit;
+
+    return err;
+}
+
+int
+tr_ctorGetUploadSlots( const tr_ctor * ctor,
+                       tr_ctorMode     mode,
+                       uint16_t *      setmeCount )
+{
+    int err = 0;
+    const struct optional_args * args = &ctor->optionalArgs[mode];
+
+    if( !args->isSet_uploadSlots )
+        err = 1;
+    else if( setmeCount )
+        *setmeCount = args->uploadSlots;
 
     return err;
 }
@@ -452,6 +481,7 @@ tr_ctorNew( const tr_session * session )
         tr_ctorSetDeleteSource( ctor, tr_sessionGetDeleteSource( session ) );
         tr_ctorSetPaused( ctor, TR_FALLBACK, tr_sessionGetPaused( session ) );
         tr_ctorSetPeerLimit( ctor, TR_FALLBACK, session->peerLimitPerTorrent );
+        tr_ctorSetUploadSlots( ctor, TR_FALLBACK, session->uploadSlotsPerTorrent );
         tr_ctorSetDownloadDir( ctor, TR_FALLBACK, session->downloadDir );
     }
     tr_ctorSetSave( ctor, true );

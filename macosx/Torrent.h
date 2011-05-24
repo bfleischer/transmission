@@ -114,6 +114,9 @@
 - (void) setMaxPeerConnect: (uint16_t) count;
 - (uint16_t) maxPeerConnect;
 
+- (void) setUploadSlots: (uint16_t) count;
+- (uint16_t) uploadSlots;
+
 - (BOOL) waitingToStart;
 
 - (tr_priority_t) priority;
