@@ -24,6 +24,8 @@ minor_version=`echo ${user_agent_prefix} | awk -F . '{print $2 + 0}'`
 # grab the version.
 if [ -d ".svn" ] && type svnversion >/dev/null 2>&1; then
     svn_revision=`svnversion -n . | cut -d: -f1 | cut -dM -f1 | cut -dS -f1`
+elif [ -d ".git" ]; then
+    svn_revision=`git log | grep -Po -m 1 "git-svn-id: svn:[^@]*@\K\d+?(?= )"`
 else
     # Give up and check the source files
     svn_revision=`awk '/\\$Id: /{ if ($4>i) i=$4 } END {print i}' */*.cc */*.[chm] */*.po`
