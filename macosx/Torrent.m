@@ -1730,7 +1730,7 @@ int trashDataFile(const char * filename)
                 
                 if (!node)
                 {
-                    node = [[FileListNode alloc] initWithFolderName: name path: path];
+                    node = [[FileListNode alloc] initWithFolderName: name path: path torrent: self];
                     [fileList addObject: node];
                     [node release];
                 }
@@ -1743,7 +1743,7 @@ int trashDataFile(const char * filename)
             }
             else
             {
-                FileListNode * node = [[FileListNode alloc] initWithFileName: name path: path size: file->length index: i];
+                FileListNode * node = [[FileListNode alloc] initWithFileName: name path: path size: file->length index: i torrent: self];
                 [fileList addObject: node];
                 [flatFileList addObject: node];
                 [node release];
@@ -1758,7 +1758,7 @@ int trashDataFile(const char * filename)
     }
     else
     {
-        FileListNode * node = [[FileListNode alloc] initWithFileName: [self name] path: @"" size: [self size] index: 0];
+        FileListNode * node = [[FileListNode alloc] initWithFileName: [self name] path: @"" size: [self size] index: 0 torrent: self];
         fFileList = [[NSArray arrayWithObject: node] retain];
         fFlatFileList = [fFileList retain];
         [node release];
@@ -1784,10 +1784,10 @@ int trashDataFile(const char * filename)
     {
         NSString * path = [[parent path] stringByAppendingPathComponent: [parent name]];
         if (isFolder)
-            node = [[FileListNode alloc] initWithFolderName: name path: path];
+            node = [[FileListNode alloc] initWithFolderName: name path: path torrent: self];
         else
         {
-            node = [[FileListNode alloc] initWithFileName: name path: path size: size index: index];
+            node = [[FileListNode alloc] initWithFileName: name path: path size: size index: index torrent: self];
             [flatFileList addObject: node];
         }
         
