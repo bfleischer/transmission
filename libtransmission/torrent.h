@@ -241,6 +241,7 @@ struct tr_torrent
     bool                       isDeleting;
     bool                       startAfterVerify;
     bool                       isDirty;
+    bool                       isQueued;
 
     bool                       infoDictOffsetIsCached;
 
@@ -435,7 +436,7 @@ bool tr_torrentIsStalled( const tr_torrent * tor );
 static inline bool
 tr_torrentIsQueued( const tr_torrent * tor )
 {
-    return tor->queuePosition >= 0;
+    return tor->isQueued;
 }
 
 static inline tr_direction
