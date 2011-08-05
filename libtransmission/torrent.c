@@ -1496,7 +1496,9 @@ tr_torrentSetHasPiece( tr_torrent *     tor,
 ****
 ***/
 
+#ifndef NDEBUG
 static bool queueIsSequenced( tr_session * );
+#endif
 
 static void
 freeTorrent( tr_torrent * tor )
@@ -3206,6 +3208,7 @@ compareTorrentByQueuePosition( const void * va, const void * vb )
     return a->queuePosition - b->queuePosition;
 }
 
+#ifndef NDEBUG
 static bool
 queueIsSequenced( tr_session * session )
 {
@@ -3239,6 +3242,7 @@ queueIsSequenced( tr_session * session )
     tr_free( tmp );
     return is_sequenced;
 }
+#endif
 
 int
 tr_torrentGetQueuePosition( const tr_torrent * tor )
