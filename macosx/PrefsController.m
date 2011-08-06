@@ -806,8 +806,9 @@ tr_session * fHandle;
 
 - (void) setStalledMinutes: (id) sender
 {
-    [fDefaults setInteger: [sender intValue] forKey: @"StalledMinutes"];
-    tr_sessionSetQueueStalledMinutes(fHandle, [fDefaults integerForKey: @"StalledMinutes"]);
+    const NSInteger min = [sender intValue];
+    [fDefaults setInteger: min forKey: @"StalledMinutes"];
+    tr_sessionSetQueueStalledMinutes(fHandle, min);
     
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
@@ -1244,7 +1245,7 @@ tr_session * fHandle;
     const float ratioLimit = tr_sessionGetRatioLimit(fHandle);
     [fDefaults setFloat: ratioLimit forKey: @"RatioLimit"];
     
-    //Idle seed limit
+    //idle seed limit
     const BOOL idleLimited = tr_sessionIsIdleLimited(fHandle);
     [fDefaults setBool: idleLimited forKey: @"IdleLimitCheck"];
     
@@ -1260,10 +1261,12 @@ tr_session * fHandle;
     
     const BOOL seedQueue = tr_sessionGetQueueEnabled(fHandle, TR_UP);
     [fDefaults setBool: seedQueue forKey: @"QueueSeed"];
-    [fDefaults setBool: downloadQueue forKey: @"Queue"];
     
     const int seedQueueNum = tr_sessionGetQueueSize(fHandle, TR_UP);
     [fDefaults setInteger: seedQueueNum forKey: @"QueueSeedNumber"];
+    
+    const int stalledMinutes = tr_sessionGetQueueStalledMinutes(fHandle);
+    [fDefaults setInteger: stalledMinutes forKey: @"StalledMinutes"];
     
     //done script
     const BOOL doneScriptEnabled = tr_sessionIsTorrentDoneScriptEnabled(fHandle);
@@ -1317,6 +1320,12 @@ tr_session * fHandle;
         
         //idle limit enabled handled by bindings
         [fIdleStopField setIntegerValue: idleLimitMin];
+        
+        //queues enabled handled by bindings
+        [fQueueDownloadField setIntValue: downloadQueueNum];
+        [fQueueSeedField setIntValue: seedQueueNum];
+        
+        [fStalledField setIntValue: stalledMinutes];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName: @"SpeedLimitUpdate" object: nil];
