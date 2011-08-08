@@ -782,6 +782,7 @@ tr_session * fHandle;
     tr_sessionSetQueueEnabled(fHandle, TR_DOWN, [fDefaults boolForKey: @"Queue"]);
     tr_sessionSetQueueEnabled(fHandle, TR_UP, [fDefaults boolForKey: @"QueueSeed"]);
     
+    #warning any of these "UpdateQueue" needed?
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
 
@@ -799,7 +800,11 @@ tr_session * fHandle;
 
 - (void) setStalled: (id) sender
 {
-#warning do something here
+    tr_sessionSetQueueStalledEnabled(fHandle, [fDefaults boolForKey: @"CheckStalled"]);
+    
+    //reload main table for stalled status
+    #warning redundant?
+    [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateUI" object: nil];
     
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
@@ -1265,6 +1270,9 @@ tr_session * fHandle;
     const int seedQueueNum = tr_sessionGetQueueSize(fHandle, TR_UP);
     [fDefaults setInteger: seedQueueNum forKey: @"QueueSeedNumber"];
     
+    const BOOL checkStalled = tr_sessionGetQueueStalledEnabled(fHandle);
+    [fDefaults setBool: checkStalled forKey: @"CheckStalled"];
+    
     const int stalledMinutes = tr_sessionGetQueueStalledMinutes(fHandle);
     [fDefaults setInteger: stalledMinutes forKey: @"StalledMinutes"];
     
@@ -1325,6 +1333,7 @@ tr_session * fHandle;
         [fQueueDownloadField setIntValue: downloadQueueNum];
         [fQueueSeedField setIntValue: seedQueueNum];
         
+        //check stalled handled by bindings
         [fStalledField setIntValue: stalledMinutes];
     }
     
