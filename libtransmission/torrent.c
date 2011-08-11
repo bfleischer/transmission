@@ -2733,12 +2733,10 @@ removeEmptyFoldersAndJunkFiles( const char * folder )
             if( strcmp( d->d_name, "." ) && strcmp( d->d_name, ".." ) ) {
                 struct stat sb;
                 char * filename = tr_buildPath( folder, d->d_name, NULL );
-                if( !stat( filename, &sb ) ) {
-                    if( S_ISDIR( sb.st_mode ) )
-                        removeEmptyFoldersAndJunkFiles( filename );
-                    else if( isJunkFile( d->d_name ) )
-                        remove( filename );
-                }
+                if( !stat( filename, &sb ) && S_ISDIR( sb.st_mode ) )
+                    removeEmptyFoldersAndJunkFiles( filename );
+                else if( isJunkFile( d->d_name ) )
+                    remove( filename );
                 tr_free( filename );
             }
         }
@@ -2795,6 +2793,7 @@ deleteLocalData( tr_torrent * tor, tr_fileFunc func )
             tr_free( target_dir );
             tr_free( target );
             tr_free( source );
+            tr_free( subpath );
         }
     }
 
@@ -2854,8 +2853,8 @@ deleteLocalData( tr_torrent * tor, tr_fileFunc func )
     /* cleanup */
     rmdir( tmpdir );
     tr_free( tmpdir );
-    tr_ptrArrayDestruct( &files, tr_free );
     tr_ptrArrayDestruct( &folders, tr_free );
+    tr_ptrArrayDestruct( &files, tr_free );
 }
 
 static void
