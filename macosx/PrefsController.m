@@ -782,7 +782,7 @@ tr_session * fHandle;
     tr_sessionSetQueueEnabled(fHandle, TR_DOWN, [fDefaults boolForKey: @"Queue"]);
     tr_sessionSetQueueEnabled(fHandle, TR_UP, [fDefaults boolForKey: @"QueueSeed"]);
     
-    #warning any of these "UpdateQueue" needed?
+    //handle if any transfers switch from queued to paused
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
 
@@ -794,8 +794,6 @@ tr_session * fHandle;
     [fDefaults setInteger: number forKey: seed ? @"QueueSeedNumber" : @"QueueDownloadNumber"];
     
     tr_sessionSetQueueSize(fHandle, seed ? TR_UP : TR_DOWN, number);
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
 
 - (void) setStalled: (id) sender
@@ -803,10 +801,7 @@ tr_session * fHandle;
     tr_sessionSetQueueStalledEnabled(fHandle, [fDefaults boolForKey: @"CheckStalled"]);
     
     //reload main table for stalled status
-    #warning redundant?
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateUI" object: nil];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
 }
 
 - (void) setStalledMinutes: (id) sender
@@ -815,7 +810,8 @@ tr_session * fHandle;
     [fDefaults setInteger: min forKey: @"StalledMinutes"];
     tr_sessionSetQueueStalledMinutes(fHandle, min);
     
-    [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateQueue" object: self];
+    //reload main table for stalled status
+    [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateUI" object: self];
 }
 
 - (void) setDownloadLocation: (id) sender
