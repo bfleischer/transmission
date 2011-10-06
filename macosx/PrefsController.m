@@ -1397,7 +1397,7 @@ tr_session * fHandle;
     {
         [fFolderPopUp selectItemAtIndex: DOWNLOAD_FOLDER];
         
-        NSString * folder = [[openPanel filenames] objectAtIndex: 0];
+        NSString * folder = [[[openPanel URLs] objectAtIndex: 0] path];
         [fDefaults setObject: folder forKey: @"DownloadFolder"];
         [fDefaults setObject: @"Constant" forKey: @"DownloadChoice"];
         
@@ -1414,7 +1414,7 @@ tr_session * fHandle;
 {
     if (code == NSOKButton)
     {
-        NSString * folder = [[openPanel filenames] objectAtIndex: 0];
+        NSString * folder = [[[openPanel URLs] objectAtIndex: 0] path];
         [fDefaults setObject: folder forKey: @"IncompleteDownloadFolder"];
         
         tr_sessionSetIncompleteDir(fHandle, [folder UTF8String]);
@@ -1431,7 +1431,7 @@ tr_session * fHandle;
         if (path)
             [sharedQueue removePathFromQueue: [path stringByExpandingTildeInPath]];
         
-        path = [[openPanel filenames] objectAtIndex: 0];
+        path = [[[openPanel URLs] objectAtIndex: 0] path];
         [fDefaults setObject: path forKey: @"AutoImportDirectory"];
         [sharedQueue addPath: [path stringByExpandingTildeInPath]];
         
@@ -1447,7 +1447,7 @@ tr_session * fHandle;
 {
     if (code == NSOKButton)
     {
-        NSString * filePath = [[openPanel filenames] objectAtIndex: 0];
+        NSString * filePath = [[[openPanel URLs] objectAtIndex: 0] path];
         
         if ([[NSFileManager defaultManager] fileExistsAtPath: filePath])  // script file exists
         {
