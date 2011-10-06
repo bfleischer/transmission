@@ -293,9 +293,9 @@
 {
     const BOOL upload = sender == fUploadLimitCheck;
     
-    if ([sender state] == NSMixedState)
+    if ([(NSButton *)sender state] == NSMixedState)
         [sender setState: NSOnState];
-    const BOOL limit = [sender state] == NSOnState;
+    const BOOL limit = [(NSButton *)sender state] == NSOnState;
     
     for (Torrent * torrent in fTorrents)
         [torrent setUseSpeedLimit: limit upload: upload];
@@ -316,9 +316,9 @@
 
 - (void) setUseGlobalSpeedLimit: (id) sender
 {
-    if ([sender state] == NSMixedState)
+    if ([(NSButton *)sender state] == NSMixedState)
         [sender setState: NSOnState];
-    const BOOL limit = [sender state] == NSOnState;
+    const BOOL limit = [(NSButton *)sender state] == NSOnState;
     
     for (Torrent * torrent in fTorrents)
         [torrent setUseGlobalSpeedLimit: limit];

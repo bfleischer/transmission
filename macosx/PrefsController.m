@@ -27,7 +27,6 @@
 #import "BlocklistScheduler.h"
 #import "PortChecker.h"
 #import "BonjourController.h"
-#import "NSApplicationAdditions.h"
 #import "NSStringAdditions.h"
 #import "UKKQueue.h"
 
@@ -551,20 +550,7 @@ tr_session * fHandle;
         NSDate * updatedDate = [fDefaults objectForKey: @"BlocklistNewLastUpdateSuccess"];
         
         if (updatedDate)
-        {
-            if ([NSApp isOnSnowLeopardOrBetter])
-                updatedDateString = [NSDateFormatter localizedStringFromDate: updatedDate dateStyle: NSDateFormatterFullStyle
-                                        timeStyle: NSDateFormatterShortStyle];
-            else
-            {
-                NSDateFormatter * dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setDateStyle: NSDateFormatterFullStyle];
-                [dateFormatter setTimeStyle: NSDateFormatterShortStyle];
-                
-                updatedDateString = [dateFormatter stringFromDate: updatedDate];
-                [dateFormatter release];
-            }
-        }
+            updatedDateString = [NSDateFormatter localizedStringFromDate: updatedDate dateStyle: NSDateFormatterFullStyle timeStyle: NSDateFormatterShortStyle];
         else
             updatedDateString = NSLocalizedString(@"N/A", "Prefs -> blocklist -> message");
     }
@@ -1380,7 +1366,7 @@ tr_session * fHandle;
         return;
     
     NSRect windowRect = [window frame];
-    float difference = ([view frame].size.height - [[window contentView] frame].size.height) * [window userSpaceScaleFactor];
+    const CGFloat difference = (NSHeight([view frame]) - NSHeight([[window contentView] frame])) * [window userSpaceScaleFactor];
     windowRect.origin.y -= difference;
     windowRect.size.height += difference;
     
