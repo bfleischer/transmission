@@ -36,6 +36,8 @@
     
     NSString * fInitialString;
     
+    IBOutlet NSButton * fBuiltInGrowlButton;
+    IBOutlet NSTextField * fGrowlInstalledField;
     IBOutlet NSTextField * fCheckForUpdatesLabel;
     IBOutlet NSButton * fCheckForUpdatesButton, * fCheckForUpdatesBetaButton;
     
@@ -103,6 +105,8 @@
 - (void) setAutoStartDownloads: (id) sender;
 
 - (void) setBadge: (id) sender;
+
+- (IBAction) setBuiltInGrowlEnabled: (id) sender;
 
 - (void) resetWarnings: (id) sender;
 
