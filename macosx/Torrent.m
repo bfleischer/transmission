@@ -1723,10 +1723,14 @@ int trashDataFile(const char * filename)
             if ([pathComponents count] > 2)
             {
                 //determine if folder node already exists
-                FileListNode * node;
-                for (node in fileList)
-                    if ([[node name] isEqualToString: name] && [node isFolder])
-                        break;
+                __block FileListNode * node = nil;
+                [fileList enumerateObjectsWithOptions: NSEnumerationConcurrent usingBlock: ^(FileListNode * searchNode, NSUInteger idx, BOOL * stop) {
+                    if ([[searchNode name] isEqualToString: name] && [searchNode isFolder])
+                    {
+                        node = searchNode;
+                        *stop = YES;
+                    }
+                }];
                 
                 if (!node)
                 {
@@ -1735,8 +1739,7 @@ int trashDataFile(const char * filename)
                     [node release];
                 }
                 
-                NSMutableArray * trimmedComponents = [NSMutableArray arrayWithArray: [pathComponents subarrayWithRange:
-                                                        NSMakeRange(2, [pathComponents count]-2)]];
+                NSMutableArray * trimmedComponents = [NSMutableArray arrayWithArray: [pathComponents subarrayWithRange: NSMakeRange(2, [pathComponents count]-2)]];
                 
                 [node insertIndex: i withSize: file->length];
                 [self insertPath: trimmedComponents forParent: node fileSize: file->length index: i flatList: flatFileList];
@@ -1771,6 +1774,7 @@ int trashDataFile(const char * filename)
     NSString * name = [components objectAtIndex: 0];
     const BOOL isFolder = [components count] > 1;
     
+    //determine if folder node already exists
     __block FileListNode * node = nil;
     if (isFolder)
     {
