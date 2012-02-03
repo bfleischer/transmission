@@ -2695,7 +2695,6 @@ tr_sessionSetQueueStalledMinutes( tr_session * session, int minutes )
     assert( minutes > 0 );
 
     session->queueStalledMinutes = minutes;
-   
 }
 
 void
@@ -2706,7 +2705,7 @@ tr_sessionSetQueueStalledEnabled( tr_session * session, bool is_enabled )
 
     session->stalledEnabled = is_enabled;
 }
-  
+
 bool
 tr_sessionGetQueueStalledEnabled( const tr_session * session )
 {
