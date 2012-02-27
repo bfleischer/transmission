@@ -91,7 +91,7 @@
 - (void) setDHT: (id) sender;
 - (void) setLPD: (id) sender;
 
-- (void) setUploadSlotsTorrent: (id) sender;
+- (IBAction) setUploadSlotsTorrent: (id) sender;
 
 - (void) setEncryptionMode: (id) sender;
 

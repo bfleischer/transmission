@@ -467,7 +467,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName: @"UpdateOptionsNotification" object: self];
 }
 
-- (void) setUploadSlots: (id) sender
+- (IBAction) setUploadSlots: (id) sender
 {
     NSInteger slots = [sender intValue];
     

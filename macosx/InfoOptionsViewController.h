@@ -60,6 +60,6 @@
 
 - (void) setPeersConnectLimit: (id) sender;
 
-- (void) setUploadSlots:(id)sender;
+- (IBAction) setUploadSlots:(id)sender;
 
 @end

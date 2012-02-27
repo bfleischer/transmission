@@ -501,7 +501,7 @@ tr_session * fHandle;
     tr_sessionSetLPDEnabled(fHandle, [fDefaults boolForKey: @"LocalPeerDiscoveryGlobal"]);
 }
 
-- (void) setUploadSlotsTorrent: (id) sender
+- (IBAction) setUploadSlotsTorrent: (id) sender
 {
     const int count = [sender intValue];
     [fDefaults setInteger: count forKey: @"UploadSlotsTorrent"];
