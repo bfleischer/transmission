@@ -46,6 +46,8 @@
     NSIndexSet * fPreviousFinishedIndexes;
     NSDate * fPreviousFinishedIndexesDate;
     
+    BOOL fRemoveWhenFinishSeeding;
+    
     NSInteger fGroupValue;
     
     BOOL fResumeOnWake;
@@ -116,6 +118,8 @@
 
 - (void) setUploadSlots: (uint16_t) count;
 - (uint16_t) uploadSlots;
+
+@property (nonatomic) BOOL removeWhenFinishSeeding;
 
 - (BOOL) waitingToStart;
 

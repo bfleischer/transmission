@@ -38,6 +38,7 @@
 - (id) initWithPath: (NSString *) path hash: (NSString *) hashString torrentStruct: (tr_torrent *) torrentStruct
         magnetAddress: (NSString *) magnetAddress lib: (tr_session *) lib
         groupValue: (NSNumber *) groupValue
+        removeWhenFinishSeeding: (NSNumber *) removeWhenFinishSeeding
         timeMachineExcludeLocation: (NSString *) timeMachineExclude
         downloadFolder: (NSString *) downloadFolder
         legacyIncompleteFolder: (NSString *) incompleteFolder;
@@ -102,11 +103,15 @@ int trashDataFile(const char * filename)
 
 @implementation Torrent
 
+#warning remove ivars in header when 64-bit only (or it compiles in 32-bit mode)
+@synthesize removeWhenFinishSeeding = fRemoveWhenFinishSeeding;
+
 - (id) initWithPath: (NSString *) path location: (NSString *) location deleteTorrentFile: (BOOL) torrentDelete
         lib: (tr_session *) lib
 {
     self = [self initWithPath: path hash: nil torrentStruct: NULL magnetAddress: nil lib: lib
             groupValue: nil
+            removeWhenFinishSeeding: nil
             timeMachineExcludeLocation: nil
             downloadFolder: location
             legacyIncompleteFolder: nil];
@@ -123,6 +128,7 @@ int trashDataFile(const char * filename)
 {
     self = [self initWithPath: nil hash: nil torrentStruct: torrentStruct magnetAddress: nil lib: lib
             groupValue: nil
+            removeWhenFinishSeeding: nil
             timeMachineExcludeLocation: nil
             downloadFolder: location
             legacyIncompleteFolder: nil];
@@ -134,6 +140,7 @@ int trashDataFile(const char * filename)
 {
     self = [self initWithPath: nil hash: nil torrentStruct: nil magnetAddress: address
             lib: lib groupValue: nil
+            removeWhenFinishSeeding: nil
             timeMachineExcludeLocation: nil
             downloadFolder: location legacyIncompleteFolder: nil];
     
@@ -148,6 +155,7 @@ int trashDataFile(const char * filename)
                 magnetAddress: nil
                 lib: lib
                 groupValue: [history objectForKey: @"GroupValue"]
+                removeWhenFinishSeeding: [history objectForKey: @"RemoveWhenFinishSeeding"]
                 timeMachineExcludeLocation: [history objectForKey: @"TimeMachineExcludeLocation"]
                 downloadFolder: [history objectForKey: @"DownloadFolder"] //upgrading from versions < 1.80
                 legacyIncompleteFolder: [[history objectForKey: @"UseIncompleteFolder"] boolValue] //upgrading from versions < 1.80
@@ -197,7 +205,8 @@ int trashDataFile(const char * filename)
                                         [self hashString], @"TorrentHash",
                                         [NSNumber numberWithBool: [self isActive]], @"Active",
                                         [NSNumber numberWithBool: [self waitingToStart]], @"WaitToStart",
-                                        [NSNumber numberWithInt: fGroupValue], @"GroupValue", nil];
+                                        [NSNumber numberWithInt: fGroupValue], @"GroupValue",
+                                        [NSNumber numberWithBool: fRemoveWhenFinishSeeding], @"RemoveWhenFinishSeeding", nil];
     
     if (fTimeMachineExclude)
         [history setObject: fTimeMachineExclude forKey: @"TimeMachineExcludeLocation"];
@@ -1624,6 +1633,7 @@ int trashDataFile(const char * filename)
 - (id) initWithPath: (NSString *) path hash: (NSString *) hashString torrentStruct: (tr_torrent *) torrentStruct
         magnetAddress: (NSString *) magnetAddress lib: (tr_session *) lib
         groupValue: (NSNumber *) groupValue
+        removeWhenFinishSeeding: (NSNumber *) removeWhenFinishSeeding
         timeMachineExcludeLocation: (NSString *) timeMachineExclude
         downloadFolder: (NSString *) downloadFolder
         legacyIncompleteFolder: (NSString *) incompleteFolder
@@ -1686,6 +1696,8 @@ int trashDataFile(const char * filename)
         [self createFileList];
 	
     fGroupValue = groupValue ? [groupValue intValue] : [[GroupsController groups] groupIndexForTorrent: self]; 
+    
+    fRemoveWhenFinishSeeding = removeWhenFinishSeeding ? [removeWhenFinishSeeding boolValue] : [fDefaults boolForKey: @"RemoveWhenFinishSeeding"];
     
     [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(checkGroupValueForRemoval:)
         name: @"GroupValueRemoved" object: nil];
