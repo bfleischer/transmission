@@ -1689,8 +1689,8 @@ updateDesiredRequestCount( tr_peermsgs * msgs )
             rate_Bps = MIN( rate_Bps, tr_torrentGetSpeedLimit_Bps( torrent, TR_PEER_TO_CLIENT ) );
 
         /* honor the session limits, if enabled */
-        if( tr_torrentUsesSessionLimits( torrent ) 
-	&&  tr_sessionGetActiveSpeedLimit_Bps( torrent->session, TR_PEER_TO_CLIENT, &irate_Bps ) )
+        if( tr_torrentUsesSessionLimits( torrent ) &&
+	    tr_sessionGetActiveSpeedLimit_Bps( torrent->session, TR_PEER_TO_CLIENT, &irate_Bps ) )
                 rate_Bps = MIN( rate_Bps, irate_Bps );
 
         /* use this desired rate to figure out how
@@ -1984,10 +1984,13 @@ gotError( tr_peerIo * io UNUSED, short what, void * vmsgs )
 static void
 sendBitfield( tr_peermsgs * msgs )
 {
+    void * bytes;
     size_t byte_count = 0;
     struct evbuffer * out = msgs->outMessages;
-    void * bytes = tr_cpCreatePieceBitfield( &msgs->torrent->completion, &byte_count );
 
+    assert( tr_torrentHasMetadata( msgs->torrent ) );
+
+    bytes = tr_cpCreatePieceBitfield( &msgs->torrent->completion, &byte_count );
     evbuffer_add_uint32( out, sizeof( uint8_t ) + byte_count );
     evbuffer_add_uint8 ( out, BT_BITFIELD );
     evbuffer_add       ( out, bytes, byte_count );

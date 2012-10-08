@@ -39,6 +39,11 @@
                         * fPeersConnectLabel, * fPeersConnectField,
                         * fUploadSlotsLabel, * fUploadSlotsField;
     
+    //remove when we switch to auto layout on 10.7
+    IBOutlet NSTextField * fTransferBandwidthSectionLabel, * fPrioritySectionLabel, * fPriorityLabel;
+    IBOutlet NSTextField * fSeedingLimitsSectionLabel, * fRatioLabel, * fInactivityLabel;
+    IBOutlet NSTextField * fAdvancedSectionLabel, * fMaxConnectionsLabel;
+    
     NSString * fInitialString;
 }
 
