@@ -51,8 +51,9 @@
     [super dealloc];
 }
 
-#warning uncomment after 2.7
-/*- (void) awakeFromNib
+#warning enable after 2.7
+/*
+- (void) awakeFromNib
 {
     #warning remove when 10.7-only with auto layout
     [fInfoSectionLabel sizeToFit];
@@ -60,15 +61,14 @@
     
     NSArray * labels = @[ fPiecesLabel, fHashLabel, fSecureLabel, fCreatorLabel, fDateCreatedLabel, fCommentLabel, fDataLocationLabel ];
     
-    CGFloat oldMaxWidth = 0.0, newMaxWidth = 0.0;
-    NSTextField * oldLongestLabel = nil;
+    CGFloat oldMaxWidth = 0.0, originX, newMaxWidth = 0.0;
     for (NSTextField * label in labels)
     {
-        const CGFloat oldWidth = [label bounds].size.width;
-        if (oldWidth > oldMaxWidth)
+        const NSRect oldFrame = [label frame];
+        if (oldFrame.size.width > oldMaxWidth)
         {
-            oldMaxWidth = oldWidth;
-            oldLongestLabel = label;
+            oldMaxWidth = oldFrame.size.width;
+            originX = oldFrame.origin.x;
         }
         
         [label sizeToFit];
@@ -80,15 +80,14 @@
     for (NSTextField * label in labels)
     {
         NSRect frame = [label frame];
-        frame.origin.x = [oldLongestLabel frame].origin.x;
-        frame.origin.x += newMaxWidth - frame.size.width;
+        frame.origin.x = originX + (newMaxWidth - frame.size.width);
         [label setFrame: frame];
     }
     
     NSArray * fields = @[ fPiecesField, fHashField, fSecureField, fCreatorField, fDateCreatedField, fCommentScrollView, fDataLocationField ];
     
+    const CGFloat widthIncrease = newMaxWidth - oldMaxWidth;
     for (NSView * field in fields) {
-        const CGFloat widthIncrease = newMaxWidth - oldMaxWidth;
         NSRect frame = [field frame];
         frame.origin.x += widthIncrease;
         frame.size.width -= widthIncrease;

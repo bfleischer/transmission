@@ -95,7 +95,7 @@
         [fLocationImageView setImage: nil];
     }
     
-    #warning enable after 2.7
+    #warning enable after 2.7 
     /*
     #warning when 10.7-only, switch to auto layout
     [fMagnetLinkLabel sizeToFit];
