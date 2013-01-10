@@ -534,6 +534,9 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     [nc addObserver: self selector: @selector(torrentFinishedSeeding:)
                     name: @"TorrentFinishedSeeding" object: nil];
     
+    [nc addObserver: self selector: @selector(applyFilter)
+                    name: kTorrentDidChangeGroupNotification object: nil];
+    
     //avoids need of setting delegate
     [nc addObserver: self selector: @selector(torrentTableViewSelectionDidChange:)
                     name: NSOutlineViewSelectionDidChangeNotification object: fTableView];
@@ -948,7 +951,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
         if (!lockDestination && [[GroupsController groups] usesCustomDownloadLocationForIndex: [torrent groupValue]])
         {
             location = [[GroupsController groups] customDownloadLocationForIndex: [torrent groupValue]];
-            [torrent changeDownloadFolderBeforeUsing: location];
+            [torrent changeDownloadFolderBeforeUsing: location determinationType: TorrentDeterminationAutomatic];
         }
         
         //verify the data right away if it was newly created
@@ -1045,7 +1048,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     if ([[GroupsController groups] usesCustomDownloadLocationForIndex: [torrent groupValue]])
     {
         location = [[GroupsController groups] customDownloadLocationForIndex: [torrent groupValue]];
-        [torrent changeDownloadFolderBeforeUsing: location];
+        [torrent changeDownloadFolderBeforeUsing: location determinationType: TorrentDeterminationAutomatic];
     }
     
     if ([fDefaults boolForKey: @"MagnetOpenAsk"] || !location)
@@ -1378,8 +1381,6 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 
 - (void) removeTorrents: (NSArray *) torrents deleteData: (BOOL) deleteData
 {
-    [torrents retain];
-
     if ([fDefaults boolForKey: @"CheckRemove"])
     {
         NSUInteger active = 0, downloading = 0;
@@ -1393,9 +1394,8 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 
         if ([fDefaults boolForKey: @"CheckRemoveDownloading"] ? downloading > 0 : active > 0)
         {
-            NSDictionary * dict = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                    torrents, @"Torrents",
-                                    [NSNumber numberWithBool: deleteData], @"DeleteData", nil];
+            NSDictionary * dict = @{ @"Torrents" : torrents,
+                                    @"DeleteData" : @(deleteData) };
             
             NSString * title, * message;
             
@@ -1441,7 +1441,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
             
             NSBeginAlertSheet(title, NSLocalizedString(@"Remove", "Removal confirm panel -> button"),
                 NSLocalizedString(@"Cancel", "Removal confirm panel -> button"), nil, fWindow, self,
-                nil, @selector(removeSheetDidEnd:returnCode:contextInfo:), dict, @"%@", message);
+                nil, @selector(removeSheetDidEnd:returnCode:contextInfo:), [dict retain], @"%@", message);
             return;
         }
     }
@@ -1453,9 +1453,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 {
     NSArray * torrents = [dict objectForKey: @"Torrents"];
     if (returnCode == NSAlertDefaultReturn)
-        [self confirmRemoveTorrents: [torrents retain] deleteData: [[dict objectForKey: @"DeleteData"] boolValue]];
-    
-    [torrents release];
+        [self confirmRemoveTorrents: torrents deleteData: [[dict objectForKey: @"DeleteData"] boolValue]];
     [dict release];
 }
 
@@ -1480,6 +1478,22 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
         
         //we can't assume the window is active - RPC removal, for example
         [fBadger removeTorrent: torrent];
+    }
+    
+    //#5106 - don't try to remove torrents that have already been removed (fix for a bug, but better safe than crash anyway)
+    NSIndexSet * indexesToRemove = [torrents indexesOfObjectsWithOptions: NSEnumerationConcurrent passingTest: ^BOOL(Torrent * torrent, NSUInteger idx, BOOL * stop) {
+        return [fTorrents indexOfObjectIdenticalTo: torrent] != NSNotFound;
+    }];
+    if ([torrents count] != [indexesToRemove count])
+    {
+        NSLog(@"trying to remove %ld transfers, but %ld have already been removed", [torrents count], [torrents count] - [indexesToRemove count]);
+        torrents = [torrents objectsAtIndexes: indexesToRemove];
+        
+        if ([indexesToRemove count] == 0)
+        {
+            [self fullUpdateUI];
+            return;
+        }
     }
     
     [fTorrents removeObjectsInArray: torrents];
@@ -1545,9 +1559,6 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
         [fTableView selectValues: selectedValues];
     
     [self fullUpdateUI];
-    
-    #warning why do we need them retained?
-    [torrents autorelease];
 }
 
 - (void) removeNoDelete: (id) sender
@@ -1562,7 +1573,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 
 - (void) clearCompleted: (id) sender
 {
-    NSMutableArray * torrents = [[NSMutableArray alloc] init];
+    NSMutableArray * torrents = [NSMutableArray array];
     
     for (Torrent * torrent in fTorrents)
         if ([torrent isFinishedSeeding])
@@ -1602,10 +1613,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
             [fDefaults setBool: NO forKey: @"WarningRemoveCompleted"];
         
         if (returnCode != NSAlertFirstButtonReturn)
-        {
-            [torrents release];
             return;
-        }
     }
     
     [self confirmRemoveTorrents: torrents deleteData: NO];
@@ -2046,7 +2054,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 
 - (void) torrentFinishedSeeding: (NSNotification *) notification
 {
-    Torrent * torrent = [[notification object] retain];
+    Torrent * torrent = [notification object];
     
     if (!fSoundPlaying && [fDefaults boolForKey: @"PlaySeedingSound"])
     {
@@ -2091,7 +2099,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     
     //removing from the list calls fullUpdateUI
     if ([torrent removeWhenFinishSeeding])
-        [self confirmRemoveTorrents: [[NSArray arrayWithObject: torrent] retain] deleteData: NO];
+        [self confirmRemoveTorrents: @[ torrent ] deleteData: NO];
     else
     {
         if (![fWindow isMainWindow])
@@ -2105,8 +2113,6 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
             [fInfoController updateOptions];
         }
     }
-    
-    [torrent release];
 }
 
 - (void) updateTorrentHistory
@@ -2849,7 +2855,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     {
         [fTableView removeCollapsedGroup: [torrent groupValue]]; //remove old collapsed group
         
-        [torrent setGroupValue: [(NSMenuItem *)sender tag]];
+        [torrent setGroupValue: [(NSMenuItem *)sender tag] determinationType: TorrentDeterminationUserSpecified];
     }
     
     [self applyFilter];
@@ -3198,7 +3204,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
             
             //change groups
             if (item)
-                [torrent setGroupValue: [item groupIndex]];
+                [torrent setGroupValue: [item groupIndex] determinationType: TorrentDeterminationUserSpecified];
         }
         
         //reorder queue order
@@ -4477,19 +4483,25 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     switch (messageType)
     {
         case kIOMessageSystemWillSleep:
-            //if there are any running transfers, wait 15 seconds for them to stop
+        {
+            //stop all transfers (since some are active) before going to sleep and remember to resume when we wake up
+            BOOL anyActive = NO;
             for (Torrent * torrent in fTorrents)
+            {
                 if ([torrent isActive])
-                {
-                    //stop all transfers (since some are active) before going to sleep and remember to resume when we wake up
-                    for (Torrent * torrent in fTorrents)
-                        [torrent sleep];
-                    sleep(15);
-                    break;
-                }
-
+                    anyActive = YES;
+                [torrent sleep]; //have to call on all, regardless if they are active
+            }
+            
+            //if there are any running transfers, wait 15 seconds for them to stop
+            if (anyActive)
+            {
+                sleep(15);
+            }
+            
             IOAllowPowerChange(fRootPort, (long) messageArgument);
             break;
+        }
 
         case kIOMessageCanSystemSleep:
             if ([fDefaults boolForKey: @"SleepPrevent"])
@@ -4788,7 +4800,7 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
     if ([[GroupsController groups] usesCustomDownloadLocationForIndex: [torrent groupValue]])
     {
         location = [[GroupsController groups] customDownloadLocationForIndex: [torrent groupValue]];
-        [torrent changeDownloadFolderBeforeUsing: location];
+        [torrent changeDownloadFolderBeforeUsing: location determinationType: TorrentDeterminationAutomatic];
     }
     
     [torrent update];
@@ -4804,13 +4816,13 @@ static void sleepCallback(void * controller, io_service_t y, natural_t messageTy
 
 - (void) rpcRemoveTorrent: (Torrent *) torrent
 {
-    [self confirmRemoveTorrents: [[NSArray arrayWithObject: torrent] retain] deleteData: NO];
+    [self confirmRemoveTorrents: @[ torrent ] deleteData: NO];
     [torrent release];
 }
 
 - (void) rpcRemoveTorrentDeleteData: (Torrent *) torrent
 {
-    [self confirmRemoveTorrents: [[NSArray arrayWithObject: torrent] retain] deleteData: YES];
+    [self confirmRemoveTorrents: @[ torrent ] deleteData: YES];
     [torrent release];
 }
 

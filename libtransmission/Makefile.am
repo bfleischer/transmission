@@ -34,7 +34,6 @@ libtransmission_a_SOURCES = \
     history.c \
     inout.c \
     json.c \
-    JSON_parser.c \
     list.c \
     magnet.c \
     makemeta.c \
@@ -84,8 +83,9 @@ noinst_HEADERS = \
     handshake.h \
     history.h \
     inout.h \
+    jsonsl.c \
+    jsonsl.h \
     json.h \
-    JSON_parser.h \
     libtransmission-test.h \
     list.h \
     magnet.h \
@@ -122,6 +122,7 @@ noinst_HEADERS = \
     webseed.h
 
 TESTS = \
+    bitfield-test \
     blocklist-test \
     bencode-test \
     clients-test \
@@ -155,6 +156,10 @@ apps_ldadd = \
 bencode_test_SOURCES = bencode-test.c
 bencode_test_LDADD = ${apps_ldadd}
 bencode_test_LDFLAGS = ${apps_ldflags}
+
+bitfield_test_SOURCES = bitfield-test.c
+bitfield_test_LDADD = ${apps_ldadd}
+bitfield_test_LDFLAGS = ${apps_ldflags}
 
 blocklist_test_SOURCES = blocklist-test.c
 blocklist_test_LDADD = ${apps_ldadd}

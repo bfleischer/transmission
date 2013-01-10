@@ -37,7 +37,7 @@
 
 - (void) confirmAdd;
 
-- (void) setDestinationPath: (NSString *) destination;
+- (void) setDestinationPath: (NSString *) destination determinationType: (TorrentDeterminationType) determinationType;
 
 - (void) setGroupsMenu;
 - (void) changeGroupValue: (id) sender;
@@ -58,6 +58,7 @@
         fController = controller;
         
         fGroupValue = [torrent groupValue];
+        fGroupDeterminationType = TorrentDeterminationAutomatic;
     }
     return self;
 }
@@ -88,15 +89,13 @@
     [fStartCheck setState: [[NSUserDefaults standardUserDefaults] boolForKey: @"AutoStartDownload"] ? NSOnState : NSOffState];
     
     if (fDestination)
-        [self setDestinationPath: fDestination];
+        [self setDestinationPath: fDestination determinationType: TorrentDeterminationAutomatic];
     else
     {
         [fLocationField setStringValue: @""];
         [fLocationImageView setImage: nil];
     }
     
-    #warning enable after 2.7 
-    /*
     #warning when 10.7-only, switch to auto layout
     [fMagnetLinkLabel sizeToFit];
     
@@ -138,7 +137,6 @@
     const CGFloat minButtonWidth = 82.0;
     const CGFloat oldAddButtonWidth = [fAddButton bounds].size.width;
     const CGFloat oldCancelButtonWidth = [fCancelButton bounds].size.width;
-    #warning add "extra" width that sizeToFit loses
     [fAddButton sizeToFit];
     [fCancelButton sizeToFit];
     NSRect addButtonFrame = [fAddButton frame];
@@ -154,7 +152,6 @@
     [fCancelButton setFrame: cancelButtonFrame];
     
     [fStartCheck sizeToFit];
-     */
 }
 
 - (void) windowDidLoad
@@ -193,7 +190,7 @@
     
     [panel beginSheetModalForWindow: [self window] completionHandler: ^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton)
-            [self setDestinationPath: [[[panel URLs] objectAtIndex: 0] path]];
+            [self setDestinationPath: [[[panel URLs] objectAtIndex: 0] path] determinationType:TorrentDeterminationUserSpecified];
         else
         {
             if (!fDestination)
@@ -255,6 +252,7 @@
     if (![fGroupPopUp selectItemWithTag: fGroupValue])
     {
         fGroupValue = -1;
+		fGroupDeterminationType = TorrentDeterminationAutomatic;
         [fGroupPopUp selectItemWithTag: fGroupValue];
     }
 }
@@ -265,7 +263,7 @@
 
 - (void) confirmAdd
 {
-    [fTorrent setGroupValue: fGroupValue];
+    [fTorrent setGroupValue: fGroupValue determinationType: fGroupDeterminationType];
     
     if ([fStartCheck state] == NSOnState)
         [fTorrent startTransfer];
@@ -274,7 +272,7 @@
     [fController askOpenMagnetConfirmed: self add: YES]; //ensure last, since it releases this controller
 }
 
-- (void) setDestinationPath: (NSString *) destination
+- (void) setDestinationPath: (NSString *) destination determinationType: (TorrentDeterminationType) determinationType
 {
     destination = [destination stringByExpandingTildeInPath];
     if (!fDestination || ![fDestination isEqualToString: destination])
@@ -282,7 +280,7 @@
         [fDestination release];
         fDestination = [destination retain];
         
-        [fTorrent changeDownloadFolderBeforeUsing: fDestination];
+        [fTorrent changeDownloadFolderBeforeUsing: fDestination determinationType: determinationType];
     }
     
     [fLocationField setStringValue: [fDestination stringByAbbreviatingWithTildeInPath]];
@@ -302,12 +300,13 @@
 - (void) changeGroupValue: (id) sender
 {
     NSInteger previousGroup = fGroupValue;
-    fGroupValue = [sender tag];
-    
+    fGroupValue = [sender tag]; 
+    fGroupDeterminationType = TorrentDeterminationUserSpecified;
+
     if ([[GroupsController groups] usesCustomDownloadLocationForIndex: fGroupValue])
-        [self setDestinationPath: [[GroupsController groups] customDownloadLocationForIndex: fGroupValue]];
+        [self setDestinationPath: [[GroupsController groups] customDownloadLocationForIndex: fGroupValue] determinationType: TorrentDeterminationAutomatic];
     else if ([fDestination isEqualToString: [[GroupsController groups] customDownloadLocationForIndex: previousGroup]])
-        [self setDestinationPath: [[NSUserDefaults standardUserDefaults] stringForKey: @"DownloadFolder"]];
+        [self setDestinationPath: [[NSUserDefaults standardUserDefaults] stringForKey: @"DownloadFolder"] determinationType: TorrentDeterminationAutomatic];
     else;
 }
 

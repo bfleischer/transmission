@@ -82,14 +82,6 @@ function Inspector(controller) {
     *****  GENERAL INFO PAGE
     ****/
 
-    accumulateString = function (oldVal, newVal) {
-        if (!oldVal || !oldVal.length)
-            return newVal;
-        if (oldVal === newVal)
-            return newVal;
-        return 'Mixed';
-    },
-
     updateInfoPage = function () {
         var torrents = data.torrents,
             e = data.elements,
@@ -727,7 +719,7 @@ function Inspector(controller) {
                     tier = tracker.tier;
 
                     html.push('<div class="inspector_group_label">',
-                          'Tier ', tier, '</div>',
+                          'Tier ', tier+1, '</div>',
                           '<ul class="tier_list">');
                 }
 
@@ -737,7 +729,7 @@ function Inspector(controller) {
                 lastScrapeStatusHash = lastScrapeStatus(tracker);
                 parity = (j%2) ? 'odd' : 'even';
                 html.push('<li class="inspector_tracker_entry ', parity, '"><div class="tracker_host" title="', sanitizeText(tracker.announce), '">',
-                      sanitizeText(tracker.host), '</div>',
+                      sanitizeText(tracker.host || tracker.announce), '</div>',
                       '<div class="tracker_activity">',
                       '<div>', lastAnnounceStatusHash['label'], ': ', lastAnnounceStatusHash['value'], '</div>',
                       '<div>', announceState, '</div>',
